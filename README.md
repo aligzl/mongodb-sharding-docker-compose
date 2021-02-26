@@ -12,11 +12,11 @@ docker-compose up
 
 - from same network in Docker host
 ```
-mongodb://mongo1,mongo2,mongo3
+mongodb://mongos-router0,mongos-router1
 ```
 - from outside of Docker Host
 ```
-mongodb://mongos-router0,mongos-router1
+mongodb://localhost:27017,localhost:27018
 ```
 
 # LICENSE
