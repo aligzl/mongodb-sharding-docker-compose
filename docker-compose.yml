@@ -1,0 +1,173 @@
+version: '3'
+services:
+
+  #SHARD 1
+
+  shard0-replica0:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --shardsvr --replSet shard0
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+      - ./mongod/shard0-replica0:/data/db
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=shard0
+    expose:
+      - "27017"
+
+  shard0-replica1:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --shardsvr --replSet shard0
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+      - ./mongod/shard0-replica1:/data/db
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=shard0
+    expose:
+      - "27017"
+
+  shard0-replica2:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --shardsvr --replSet shard0
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+      - ./mongod/shard0-replica2:/data/db
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=shard0
+    expose:
+      - "27017"
+
+  #SHARD 2
+
+  shard1-replica0:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --shardsvr --replSet shard1
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+      - ./mongod/shard1-replica0:/data/db
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=shard1
+    expose:
+      - "27017"
+
+  shard1-replica1:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --shardsvr --replSet shard1
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+      - ./mongod/shard1-replica1:/data/db
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=shard1
+    expose:
+      - "27017"
+
+  shard1-replica2:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --shardsvr --replSet shard1
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+      - ./mongod/shard1-replica2:/data/db
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=shard1
+    expose:
+      - "27017"
+
+  # CONFIGS
+
+  configdb-replica0:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --configsvr --replSet configdb
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=configdb
+    expose:
+      - "27017"
+
+  configdb-replica1:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --configsvr --replSet configdb
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=configdb
+    expose:
+      - "27017"
+
+  configdb-replica2:
+    build:
+      context: mongod
+    command: mongod -f /etc/mongod.conf --configsvr --replSet configdb
+    volumes:
+      - ./mongod/mongod.conf:/etc/mongod.conf
+    networks:
+      - balloon
+    environment:
+      - REPSET_NAME=configdb
+    expose:
+      - "27017"
+
+  ######## MONGODB MONGOS ########
+
+  mongos-router0:
+    build:
+      context: mongos
+    command: mongos --port 27017 --bind_ip 0.0.0.0 --configdb "configdb/configdb-replica0:27017,configdb-replica1:27017,configdb-replica2:27017"
+    depends_on:
+      - shard0-replica0
+      - shard0-replica1
+      - shard0-replica2
+      - shard1-replica0
+      - shard1-replica1
+      - shard1-replica2
+      - configdb-replica0
+      - configdb-replica1
+      - configdb-replica2
+    networks:
+      - balloon
+    environment:
+      - SHARD_LIST=shard0/shard0-replica0:27017,shard0-replica0:27017,shard0-replica0:27017;shard1/shard1-replica0:27017,shard1-replica0:27017,shard1-replica0:27017
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+
+  mongos-router1:
+    build:
+      context: mongos
+    command: mongos --port 27017 --bind_ip 0.0.0.0 --configdb "configdb/configdb-replica0:27017,configdb-replica1:27017,configdb-replica2:27017"
+    networks:
+      - balloon
+    expose:
+      - "27017"
+    ports:
+      - "27018:27017"
+
+networks:
+  balloon:
+    name: balloon
+    driver: bridge
+
