@@ -130,7 +130,7 @@ services:
     expose:
       - "27017"
 
-  ######## MONGODB MONGOS ########
+  # ROUTERS
 
   mongos-router0:
     build:
